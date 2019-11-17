@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+	<head>
+		<title>茶树镇</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script><!--加载插件-->
+		<script src="js/GLTFLoader.js"></script><!--加载插件-->
+		<script src="js/OrbitControls.js"></script><!--加载插件-->
+		<script src="js/stats.min.js"></script><!--加载插件-->
+		<script src="js/dat.gui.min.js"></script><!--加载插件-->
+		<script>
+			//Main
+			
+			
+			var scene = new THREE.Scene();//新建场景
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );//新建camera，解释一下camera类型和各个参数的含义
+			
+			var renderer = new THREE.WebGLRenderer({physicallyCorrectLights :true});//新建渲染器，解释渲染器的类型和参数 //加载glTF模型必须的   必须的
+			
+			renderer.setSize( window.innerWidth, window.innerHeight );//渲染设置 尺寸
+			document.body.appendChild( renderer.domElement );//通过DOM把渲染器写进网页里
+
+			
+			
+			var geometry = new THREE.BoxGeometry( 1, 5, 1 );//新建一个Box
+			var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );//设置成绿色
+			var cube = new THREE.Mesh( geometry, material );//用Mesh把几何体和他的材质打包起来
+			
+			
+			scene.add( cube );//把cube添加到场景里，此方法比较经典
+			
+	
+			////把模型加载到场景里---开始
+			var loader = new THREE.GLTFLoader();//安装一个glTF的加载器
+			loader.load(//模型路径
+				'model/scene.gltf',
+				//加载模型时要做的
+				function(gltf){
+					var model = gltf.scene;
+					
+					scene.add(model);//给场景里添加一个gltf的场景
+					gltf.animations;//动画指向<THREE.AnimationClip>
+					gltf.scene;//THREE.Scene
+					gltf.scenes;//指向<THREE.Scene>
+					gltf.asset;//对象
+					
+					
+				},
+				//加载开始之后要做的
+				function(xhr){
+					
+					console.log((xhr.loaded/xhr.total*100)+'%loaded');//加载进度条
+					
+					},
+				//加载出现错误时要做的
+				function(error){
+				
+				console.log('An error happened');//提示出差
+			});
+				
+			
+			//把模型加载到场景里---结束
+			
+			
+			
+			
+			//摄像机控制开始
+			var controls = new THREE.OrbitControls( camera, renderer.domElement );//添加摄像机控制
+			camera.position.set(0,20,800)//设置开始相机位置
+			controls.update();//手动调整以后必须要用controls.update()更新
+			
+			//camera.position.z = 800;//设置相机的Z位置
+			//摄像机控制结束
+			
+	
+			
+			//启用stats
+			var stats = new Stats();
+			stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+			document.body.appendChild( stats.dom );
+			//启用stats结束
+	
+			
+			//定义一个animate函数来给box添加上动画
+			 function animate() {
+				requestAnimationFrame( animate );
+				controls.update();
+				//monitored code goes here
+				//cube.rotation.x += 0.01;
+				//cube.rotation.y += 0.01;
+				stats.update();
+				
+				renderer.render( scene, camera );//.render()方法，给渲染器渲染场景和摄像机 重要
+				
+				
+			};
+			
+			animate();//最后运行的函数，主函数
+		</script>
+	</body>
+</html>
